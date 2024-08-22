@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTK24.Web", "NTK24.Web\NTK24.Web.csproj", "{D42F7B57-ABC7-4578-B42F-A95B3702FE48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{B688B9C7-ABEF-4340-9D4F-63F652A88ACC}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\README.md = ..\..\README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D42F7B57-ABC7-4578-B42F-A95B3702FE48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D42F7B57-ABC7-4578-B42F-A95B3702FE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D42F7B57-ABC7-4578-B42F-A95B3702FE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D42F7B57-ABC7-4578-B42F-A95B3702FE48}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
