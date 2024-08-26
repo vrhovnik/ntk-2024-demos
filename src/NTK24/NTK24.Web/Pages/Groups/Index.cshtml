@@ -21,8 +21,8 @@
 
 <h3>List linked lists</h3>
 
-<div class="container">
-    <div class="float-end mt-2 mb-2">
+<div class="row">
+    <div class="col-12">
         <div class="float-end mt-2 mb-2">
             <a asp-page="/Groups/Create"
                class="btn btn-success">
@@ -31,39 +31,44 @@
         </div>
     </div>
 </div>
+
 <div id="app">
     <div class="form-floating mb-3">
-        <input type="search" class="form-control" id="tbQuery"
-               tabindex="0"
-               autofocus v-on:keyup.enter="callSearchAPI" v-model="query" placeholder="I want to search with this terms">
-        <label for="tbQuery">Enter search term search the files</label>
+        <v-text-field clearable label=" input search term and press enter"
+                      v-model="query"
+                      v-on:keyup.enter="callSearchAPI"
+                      variant="solo">
+        </v-text-field>
+        <v-divider></v-divider>
     </div>
-    <div class="row row-cols-1 row-cols-md-2 g-4" v-if="searchResults.length">
-        <v-data-table :items="searchResults"
-                      item-value="id"
-                      :headers="headers">
-            <template v-slot:item="{ item }">
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td class="text-center">{{ item.createdAt }}</td>
-                    <td>{{ item.shortName }}</td>
-                    <td class="text-center">{{ item.clicked }}</td>
-                    <td class="text-center">{{ item.linkCount }}</td>
-                    <td class="text-center">{{ item.dileSizeBytes }}</td>
-                </tr>
-            </template>
-            <td>
-        </v-data-table>
+    <div v-if="isLoading">
+        <v-skeleton-loader :elevation="4" type="table"></v-skeleton-loader>
     </div>
-    <div class="text-info" v-else>
-        <div v-if="isLoading">
-            Loading data from the server...
+    <div v-else>
+        <div class="row">
+            <div class="col-12" v-if="searchResults.length">
+                <v-data-table :items="searchResults"
+                              item-value="id"
+                              :headers="headers">
+                    <template v-slot:item="{ item }">
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td class="text-center">{{ item.createdAt }}</td>
+                            <td>{{ item.shortName }}</td>
+                            <td class="text-center">{{ item.clicked }}</td>
+                            <td class="text-center">{{ item.linkCount }}</td>
+                            <td class="text-center">
+                                <v-btn icon="fas fa-edit" density="compact" v-on:click="goToFunction('Create',item.id)"></v-btn>
+                                &nbsp;&nbsp;
+                                <v-btn icon="fas fa-trash" density="compact" v-on:click="goToFunction('Delete',item.id)"></v-btn>
+                            </td>
+                        </tr>
+                    </template>
+                    <td>
+                </v-data-table>
+            </div>
         </div>
-        <div v-else>
-            No data has been retrieved.
-        </div>
     </div>
-
 </div>
 
 @section Scripts
@@ -80,41 +85,55 @@
         let searchResults = ref([]);
         const headers= [
             { title: 'Name', key: 'name', align: 'start'},
-            { title: 'Created At', key: 'createdAt',align: 'center' },
+            { title: 'Created at', key: 'createdAt',align: 'center' },
             { title: 'Shortname ', key: 'shortName' },
-            { title: 'Clicked',  key: 'clicked',align: 'center' },            
-            { title: 'Link number',  key: 'linkCount',align: 'center' }
+            { title: 'No of. clicked',  key: 'clicked',align: 'center' },            
+            { title: 'Link numbers',  key: 'linkCount',align: 'center' }
         ];
-        createApp({
+        const app = createApp({
             setup() {
                 return {
                     query,
                     callSearchAPI,
+                    goToFunction,
                     searchResults,
                     isLoading,
                     headers
                 }
+            }, mounted() {
+                console.log('Calling search and getting back all the results');
+                callSearchAPI();
             }
-        }).mount('#app')
-    
-        function callSearchAPI(e) {
-            console.log('searching with ' + query);
-            const value = e.target.value.trim()
-            if (value) {
-                isLoading.value = true;
-                let searchUrl = '@Url.Page("Index", "Filter")' + "&query=" + value;
-                console.log("Search url is " + searchUrl);
-                fetch(searchUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        searchResults.value = data;
-                    });
-                isLoading.value = false;
-            }
-            else {
-                searchResults.value = [];
-            }
+        });
+        app.use(vuetify).mount('#app');
+        function goToFunction(location, currentId) {
+            const url = 'Groups/' + location;
+            console.log(url);
+            window.location.replace(url + '?linkGroupId=' + currentId);
+        }
+        function callSearchAPI() {
+            console.log('Searching with ' + query);                        
+            isLoading.value = true;
+            let searchUrl = '@Url.Page("Index", "Filter")' + "&query=" + query;
+            console.log("Search url is " + searchUrl);
+            fetch(searchUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    console.log("There has been an error while fetching data from the server.");
+                    return Promise.reject(response);
+                }
+                return response.json();
+            })
+                .then(data => {
+                    console.log(data);
+                    searchResults.value = data;
+                });
+            isLoading.value = false;            
         }
     </script>
 }

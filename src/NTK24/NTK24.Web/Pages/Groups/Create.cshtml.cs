@@ -50,7 +50,8 @@ public class CreatePageModel(
             if (string.IsNullOrEmpty(LinkGroupId))
             {
                 logger.LogInformation("Inserting link group {LinkGroupName}", CreateLinkGroup.Name);
-                await linkGroupRepository.InsertAsync(CreateLinkGroup);
+                var linkGroup = await linkGroupRepository.InsertAsync(CreateLinkGroup);
+                LinkGroupId = linkGroup.LinkGroupId.ToString();
             }
             else
             {
