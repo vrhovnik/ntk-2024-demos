@@ -8,8 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\NTK24.Interfaces\NTK24.Interfaces.csproj" />
-      <ProjectReference Include="..\NTK24.Models\NTK24.Models.csproj" />
+      <ProjectReference Include="..\NTK24.Shared\NTK24.Shared.csproj" />
+      <ProjectReference Include="..\NTK24.SQL\NTK24.SQL.csproj" />
     </ItemGroup>
 
 </Project>

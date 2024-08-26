@@ -1,0 +1,38 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY ["NTK24/NTK24.Models/", "NTK24.Models/"]
+COPY ["NTK24/NTK24.Interfaces/", "NTK24.Interfaces/"]
+COPY ["NTK24/NTK24.Shared/", "NTK24.Shared/"]
+COPY ["NTK24/NTK24.SQL/", "NTK24.SQL/"]
+COPY ["NTK24/NTK24.Api/", "NTK24.Api/"]
+
+RUN dotnet restore "NTK24.Shared/NTK24.Shared.csproj"
+RUN dotnet restore "NTK24.Models/NTK24.Models.csproj"
+RUN dotnet restore "NTK24.Interfaces/NTK24.Interfaces.csproj"
+RUN dotnet restore "NTK24.SQL/NTK24.SQL.csproj"
+RUN dotnet restore "NTK24.Api/NTK24.Api.csproj"
+
+COPY . .
+
+WORKDIR "/src/"
+RUN dotnet restore "NTK24.Shared/NTK24.Shared.csproj"
+RUN dotnet restore "NTK24.Models/NTK24.Models.csproj"
+RUN dotnet restore "NTK24.Interfaces/NTK24.Interfaces.csproj"
+RUN dotnet restore "NTK24.SQL/NTK24.SQL.csproj"
+RUN dotnet restore "NTK24.Api/NTK24.Api.csproj"
+
+RUN dotnet build "NTK24.Shared/NTK24.Shared.csproj" -c Release -o /NTK24.Api
+RUN dotnet build "NTK24.Models/NTK24.Models.csproj" -c Release -o /NTK24.Api
+RUN dotnet build "NTK24.Interfaces/NTK24.Interfaces.csproj" -c Release -o /NTK24.Api
+RUN dotnet build "NTK24.SQL/NTK24.SQL.csproj" -c Release -o /NTK24.Api
+RUN dotnet build "NTK24.Api/NTK24.Api.csproj" -c Release -o /app
+
+FROM build AS publish
+RUN dotnet publish "NTK24.Api/NTK24.Api.csproj" -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 as final
+WORKDIR /app
+ENV ASPNETCORE_HTTP_PORTS=80
+COPY --from=publish /app .
+ENTRYPOINT ["dotnet", "NTK24.Api.dll"]

@@ -1,0 +1,168 @@
+﻿@page "{linkGroupId}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.Extensions.Options
+@using NTK24.Shared
+@using NTK24.Web.Options
+@model Pages.Groups.LinksPageModel
+@inject IOptions<AppOptions> AppOptions
+@{
+    var name = Model.CurrentLinkGroup.Name;
+    ViewData["Title"] = "Links for " + name;
+}
+
+@section breadcrumb
+{
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-page="/User/Dashboard">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-page="/Groups/Index">Link groups</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-page="/Groups/Create" asp-route-linkGroupId="@Model.LinkGroupId">
+                Link group @name
+            </a>
+        </li>
+        <li aria-current="page" class="breadcrumb-item active">
+            Add links
+        </li>
+    </ol>
+}
+
+<h3>
+    Links for @name
+    <small> created at @Model.CurrentLinkGroup.CreatedAt.ToString("dd.MM.yyyy")</small>
+</h3>
+
+<div class="mb-3">
+    <label for="tbName" class="form-label">Name</label>
+    <input class="form-control" required="required" id="tbName" type="text">
+</div>
+<div class="mb-3">
+    <label for="tbUrl" class="form-label">Link</label>
+    <input class="form-control" required="required" id="tbUrl" type="text">
+</div>
+<div class="mb-3">
+    <button class="btn btn-primary mr-3 mt-2" onclick="AddLink()">
+        Add <i class="fas fa-plus"></i>
+    </button>
+</div>
+<hr/>
+<table id="tbLinks" class="table table-light">
+    <tr>
+        <th>Name</th>
+        <th>Link</th>
+        <th class="text-center">...</th>
+    </tr>
+    @if (Model.CurrentLinkGroup.Links.Any())
+    {
+        foreach (var link in Model.CurrentLinkGroup.Links)
+        {
+            <tr>
+                <td>@link.Name</td>
+                <td>@link.Url</td>
+                <td class="text-center">
+                    <button onclick="deleteRow(this)">Delete</button>
+                </td>
+            </tr>
+        }
+    }
+</table>
+
+<div class="mb-3">
+    <button class="btn btn-primary mr-3 mt-2" onclick="SaveLinks()">
+        Save <i class="fas fa-save"></i>
+    </button>
+    <a asp-page="/Groups/Create" asp-route-linkGroupId="@Model.LinkGroupId">Back to link group details</a>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript">
+        function AddLink() {
+            let name = document.getElementById("tbName").value;
+            let link = document.getElementById("tbUrl").value;
+            
+            console.log("Adding link " + name + " with " + link);
+            
+            if (name === '' || link === '') {
+                alert("Name and link are required!");
+                return;
+            }
+            let table = document.getElementById("tbLinks");
+            let row = table.insertRow(-1);
+            let cellName = row.insertCell(-1);
+            let cellLink = row.insertCell(-1);
+            let cellButton = row.insertCell(-1);
+            
+            cellName.innerHTML = name;
+            cellLink.innerHTML = link;
+            cellButton.className = "text-center";
+            cellButton.innerHTML = "<button onclick='deleteRow(this)'>Delete</button>";
+
+            document.getElementById("tbName").value = '';
+            document.getElementById("tbUrl").value = '';
+        }
+        
+        function deleteRow(btn) {
+            let table = document.getElementById("tbLinks");        
+            let row = btn.closest("tr");        
+            let index = row.rowIndex;        
+            table.deleteRow(index);
+        }
+        
+        function SaveLinks() {
+            let table = document.getElementById("tbLinks");            
+            if (table === null || table.length === 0) {
+               alert("No links to save!");
+                return;
+            }     
+            const searchApiBase = '@ConstantRouteHelper.LinkGroupBaseRoute' + '/@ConstantRouteHelper.AddLinksRoute';
+            let url = '@AppOptions.Value.ApiUrl' + searchApiBase;      
+            console.log("Url is: " + url);
+            let list = [];
+            for (let i = 1; i < table.rows.length; i++) {
+                let row = table.rows[i];                
+                let name = row.cells[0].innerHTML;                
+                let link = row.cells[1].innerHTML;                
+                // let item = {
+                //     Name : name,
+                //     Link : link
+                // };
+                list.push(new linkViewModel(name,link));            
+            }
+            
+            if (list.length < 0) {
+                console.log("Empty list");
+                alert("No urls has been added!");
+                return;                
+            }
+            
+            let data = {
+               LinkGroupId : '@Model.LinkGroupId',               
+               Links : list 
+            };
+            console.log(data);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+              })
+              .then(result => {
+                   if (result.status === 200) {
+                      window.location.replace('@Url.Page("Index")');
+                   }            
+              })
+              .catch(error => console.error('Unable to add links to link group.', error));
+        }
+        
+         function linkViewModel(Name,Url) {
+            this.Name = Name;
+            this.Url = Url;                    
+         }
+    </script>
+}

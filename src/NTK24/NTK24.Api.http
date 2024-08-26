@@ -1,0 +1,6 @@
+@ApiHostAddress = http://localhost:5149
+
+GET {{ApiHostAddress}}/lg/health
+Accept: application/json
+
+###

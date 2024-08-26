@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace NTK24.Web.Pages;
+namespace NTK24.Web.Pages.Info;
 
 public class PrivacyModel : PageModel
 {

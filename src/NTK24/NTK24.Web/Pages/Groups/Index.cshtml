@@ -1,0 +1,33 @@
+﻿@page "{pageNumber=1}/{query?}"
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Pages.Groups.IndexPageModel
+
+@{
+    ViewData["Title"] = "List Link Groups";
+}
+
+@section breadcrumb
+{
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-page="/User/Dashboard">Dashboard</a>
+        </li>
+        <li aria-current="page"
+            class="breadcrumb-item active">
+            Link group list
+        </li>
+    </ol>
+}
+
+<h3>List linked lists</h3>
+
+<div class="container">
+    <div class="float-end mt-2 mb-2">
+        <div class="float-end mt-2 mb-2">
+            <a asp-page="/Groups/Create"
+               class="btn btn-success">
+                Create new link group <i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div>
+</div>

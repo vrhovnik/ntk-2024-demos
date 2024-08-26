@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NTK24.Interfaces\NTK24.Interfaces.csproj" />
       <ProjectReference Include="..\NTK24.Models\NTK24.Models.csproj" />
+      <ProjectReference Include="..\NTK24.Shared\NTK24.Shared.csproj" />
     </ItemGroup>
 
 </Project>

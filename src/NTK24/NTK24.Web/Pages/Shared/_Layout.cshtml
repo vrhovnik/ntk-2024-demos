@@ -1,18 +1,19 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - NTK24.Web</title>
+    <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/NTK24.Web.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/site.css"/>
+    <script data-auto-replace-svg="nest" src="https://use.fontawesome.com/releases/v6.1.1/js/all.js"></script>
 </head>
 <body>
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container">
-            <a class="navbar-brand" asp-area="" asp-page="/Index">NTK24.Web</a>
+            <a class="navbar-brand" asp-area="" asp-page="/Info/Index">Simple Url List</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -20,17 +21,63 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        <a class="nav-link text-dark" asp-area="" asp-page="/Info/Index">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                    </li>
+                    @if (User.Identity is { IsAuthenticated: true })
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Groups/Index">Search</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="align-content-end me-2">
+                <ul class="navbar-nav">
+                    @if (User.Identity is { IsAuthenticated: true })
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="font-weight-bolder mr-2">Welcome </span> <b>@User.Identity.Name</b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-page="/User/Dashboard">Dashboard</a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/User/Logout">
+                                        <b>Logout</b>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item ">
+                            <a class="nav-link" asp-page="/User/Login">
+                                <b>Login</b>
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
     </nav>
 </header>
 <div class="container">
+    @if (IsSectionDefined("breadcrumb"))
+    {
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @await RenderSectionAsync("breadcrumb")
+            </ol>
+        </nav>
+    }
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
@@ -38,14 +85,10 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2024 - NTK24.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        &copy; 2024 - SUL - <a asp-area="" asp-page="/Info/Privacy">Privacy</a> - source code available <a href="https://github.com/vrhovnik/ntk-2024-demos" target="_blank">here</a>.
     </div>
 </footer>
-
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
