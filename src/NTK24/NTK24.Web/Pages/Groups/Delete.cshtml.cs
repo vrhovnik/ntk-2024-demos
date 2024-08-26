@@ -33,6 +33,6 @@ public class DeletePageModel(ILogger<DeletePageModel> logger, ILinkGroupReposito
         return RedirectToPage("/User/Dashboard");
     }
 
-    [BindProperty(SupportsGet = true)] public string LinkGroupId { get; set; }
+    [BindProperty(SupportsGet = true)] public required string LinkGroupId { get; set; }
     [BindProperty] public LinkGroup DeleteLinkGroup { get; set; }
 }

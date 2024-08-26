@@ -1,4 +1,4 @@
-﻿@page "{pageNumber=1}/{query?}"
+﻿@page
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Pages.Groups.IndexPageModel
 
@@ -31,3 +31,95 @@
         </div>
     </div>
 </div>
+<div id="app">
+    <div class="form-floating mb-3">
+        <input type="search" class="form-control" id="tbQuery"
+               tabindex="0"
+               autofocus v-on:keyup.enter="callSearchAPI" v-model="query" placeholder="I want to search with this terms">
+        <label for="tbQuery">Enter search term search the files</label>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 g-4" v-if="searchResults.length">
+        <v-data-table :items="searchResults"
+                      item-value="id"
+                      :headers="headers">
+            <template v-slot:item="{ item }">
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td class="text-center">{{ item.createdAt }}</td>
+                    <td>{{ item.shortName }}</td>
+                    <td class="text-center">{{ item.clicked }}</td>
+                    <td class="text-center">{{ item.linkCount }}</td>
+                    <td class="text-center">{{ item.dileSizeBytes }}</td>
+                </tr>
+            </template>
+            <td>
+        </v-data-table>
+    </div>
+    <div class="text-info" v-else>
+        <div v-if="isLoading">
+            Loading data from the server...
+        </div>
+        <div v-else>
+            No data has been retrieved.
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    @await Html.PartialAsync("_VueJs")
+    @await Html.PartialAsync("_Vuetify")
+
+    <script>
+        const { createApp,ref } = Vue;
+        const { createVuetify } = Vuetify;
+        const vuetify = createVuetify();
+        const query = ref('');
+        let isLoading = ref(false);
+        let searchResults = ref([]);
+        const headers= [
+            { title: 'Name', key: 'name', align: 'start'},
+            { title: 'Created At', key: 'createdAt',align: 'center' },
+            { title: 'Shortname ', key: 'shortName' },
+            { title: 'Clicked',  key: 'clicked',align: 'center' },            
+            { title: 'Link number',  key: 'linkCount',align: 'center' }
+        ];
+        createApp({
+            setup() {
+                return {
+                    query,
+                    callSearchAPI,
+                    searchResults,
+                    isLoading,
+                    headers
+                }
+            }
+        }).mount('#app')
+    
+        function callSearchAPI(e) {
+            console.log('searching with ' + query);
+            const value = e.target.value.trim()
+            if (value) {
+                isLoading.value = true;
+                let searchUrl = '@Url.Page("Index", "Filter")' + "&query=" + value;
+                console.log("Search url is " + searchUrl);
+                fetch(searchUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        searchResults.value = data;
+                    });
+                isLoading.value = false;
+            }
+            else {
+                searchResults.value = [];
+            }
+        }
+    </script>
+}
+
+@section Head
+{
+    @await Html.PartialAsync("_VuetifyStyles")
+}

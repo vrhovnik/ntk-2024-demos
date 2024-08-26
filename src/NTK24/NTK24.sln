@@ -6,6 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{B688B9C7-A
 	ProjectSection(SolutionItems) = preProject
 		..\..\README.md = ..\..\README.md
 		NTK24.Api.http = NTK24.Api.http
+		http-client.env.json = http-client.env.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTK24.Interfaces", "NTK24.Interfaces\NTK24.Interfaces.csproj", "{B248C16F-339F-451C-9D7B-D2A562ABD715}"

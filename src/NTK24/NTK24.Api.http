@@ -1,6 +1,8 @@
-@ApiHostAddress = http://localhost:5149
-
-GET {{ApiHostAddress}}/lg/health
+### check health of the API
+GET {{api-url}}/lg/health
 Accept: application/json
 
-###
+### get link group 
+GET {{api-url}}/lg/get-all
+Accept: application/json
+X-Api-Key: {{api-key}}

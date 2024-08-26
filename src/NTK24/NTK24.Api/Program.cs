@@ -1,6 +1,8 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using NTK24.Api.Authentication;
@@ -68,15 +70,26 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors();
-app.UseEndpoints(endpoints =>
+app.MapRazorPages();
+app.MapControllers();
+app.UseExceptionHandler(options =>
 {
-    endpoints.MapHealthChecks("/" + ConstantRouteHelper.HealthRoute, new HealthCheckOptions
+    options.Run(async context =>
     {
-        Predicate = _ => true,
-        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-    }).AllowAnonymous();
-    endpoints.MapControllers();
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        context.Response.ContentType = "application/json";
+        var exception = context.Features.Get<IExceptionHandlerFeature>();
+        if (exception != null)
+        {
+            var message = $"{exception.Error.Message}";
+            await context.Response.WriteAsync(message).ConfigureAwait(false);
+        }
+    });
 });
-
+app.MapHealthChecks($"/{ConstantRouteHelper.HealthRoute}", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+}).AllowAnonymous();
 
 app.Run();

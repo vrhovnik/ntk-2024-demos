@@ -70,7 +70,7 @@ public class CreatePageModel(
         return RedirectToPage("/Groups/Links", new { linkGroupId = LinkGroupId });
     }
 
-    [BindProperty(SupportsGet = true)] public string LinkGroupId { get; set; }
+    [BindProperty(SupportsGet = true)] public required string LinkGroupId { get; set; }
     [BindProperty] public LinkGroup CreateLinkGroup { get; set; } = new();
     [BindProperty] public List<Category> Categories { get; set; }
 }
