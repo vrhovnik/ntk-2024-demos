@@ -5,5 +5,5 @@ namespace NTK24.Shared;
 public class DataOptions
 {
     [Required(ErrorMessage = "The connection string is required.")]
-    public string ConnectionString { get; set; }
+    public required string ConnectionString { get; set; }
 }

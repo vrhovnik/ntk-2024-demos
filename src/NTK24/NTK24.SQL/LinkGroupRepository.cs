@@ -220,6 +220,33 @@ public class LinkGroupRepository(string connectionString)
         return lookup.Values.ToList();
     }
 
+    public async Task<List<LinkGroup>> SearchAsync(string query = "")
+    {
+        await using var connection = new SqlConnection(connectionString);
+        var sql = "SELECT G.LinkGroupId, G.Name, G.Description, G.ShortName, " +
+                  "G.UserId,G.Clicked,G.CategoryId,G.CreatedAt, C.CategoryId, C.Name, L.LinkId, L.Name, L.Url " +
+                  "FROM LinkGroups G " +
+                  "JOIN Categories C ON G.CategoryId = C.CategoryId "+
+                  "LEFT JOIN Links L on L.LinkGroupId=G.LinkGroupId ";
+
+        if (!string.IsNullOrEmpty(query))
+            sql +=
+                $"WHERE G.Name LIKE '%{query}%' OR G.Description LIKE '%{query}%' OR G.ShortName LIKE '%{query}%' OR C.Name LIKE '%{query}%'";
+
+        var grid = await connection.QueryMultipleAsync(sql);
+        var lookup = new Dictionary<Guid, LinkGroup>();
+        grid.Read<LinkGroup, Category, Link, LinkGroup>((linkGroup, category, link) =>
+        {
+            linkGroup.Category = category;
+            if (!lookup.TryGetValue(linkGroup.LinkGroupId, out _))
+                lookup.Add(linkGroup.LinkGroupId, linkGroup);
+            if (link == null) return linkGroup;
+            lookup[linkGroup.LinkGroupId].Links.Add(link);
+            return linkGroup;
+        }, splitOn: "CategoryId,LinkId");
+        return [..lookup.Values];
+    }
+
     public override async Task<bool> DeleteAsync(string entityId)
     {
         await using var connection = new SqlConnection(connectionString);

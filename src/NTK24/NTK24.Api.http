@@ -1,3 +1,7 @@
+### check health of the asp.net core 
+GET {{api-url}}/health
+Accept: application/json
+
 ### check health of the API
 GET {{api-url}}/lg/health
 Accept: application/json

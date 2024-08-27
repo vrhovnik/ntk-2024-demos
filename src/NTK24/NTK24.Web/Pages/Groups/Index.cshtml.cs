@@ -13,7 +13,7 @@ public class IndexPageModel(ILogger<IndexPageModel> logger, ILinkGroupRepository
     public async Task<IActionResult> OnGetFilterAsync(string query)
     {
         logger.LogInformation("Getting groups for page 1 with query {Query}", query);
-        var groups = await linkGroupRepository.SearchAsync(1, 20, query);
+        var groups = await linkGroupRepository.SearchAsync(query);
         logger.LogInformation("Received {Count} groups for page 1 with query {Query}", groups.Count, query);
         var data = groups.Select(currentData => new LinkGroupViewModel(
             currentData.LinkGroupId.ToString(),

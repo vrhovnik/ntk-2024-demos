@@ -1,17 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
     </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.22.0-beta.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+        <PackageReference Include="Bogus" Version="35.6.0" />
+        <PackageReference Include="Bogus.Text" Version="35.6.0" />        
     </ItemGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\NTK24.Interfaces\NTK24.Interfaces.csproj" />
       <ProjectReference Include="..\NTK24.Shared\NTK24.Shared.csproj" />
-      <ProjectReference Include="..\NTK24.SQL\NTK24.SQL.csproj" />
+      <ProjectReference Include="..\NTK24.Web\NTK24.Web.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Properties\launchSettings.json" />
+    </ItemGroup>
+
 </Project>

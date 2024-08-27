@@ -1,0 +1,29 @@
+### check health of the init api
+GET {{init-url}}/health
+
+### generate db
+GET {{init-url}}/generate/db
+X-Api-Key: {{api-key}}
+
+### generate tables
+GET {{init-url}}/generate/tables
+X-Api-Key: {{api-key}}
+
+### generate categories
+POST {{init-url}}/generate/categories
+X-Api-Key: {{api-key}}
+
+### generate users
+POST {{init-url}}/generate/users
+X-Api-Key: {{api-key}}
+
+### generate link groups
+POST {{init-url}}/generate/link-groups
+X-Api-Key: {{api-key}}
+
+### generate links
+POST {{init-url}}/generate/links
+X-Api-Key: {{api-key}}
+
+
+

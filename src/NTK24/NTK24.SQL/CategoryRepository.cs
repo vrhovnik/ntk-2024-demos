@@ -8,6 +8,12 @@ namespace NTK24.SQL
     public class CategoryRepository(string connectionString)
         : BaseRepository<Category>(connectionString), ICategoryRepository
     {
+        public override Task<bool> BulkInsertAsync(IEnumerable<Category> entites)
+        {
+            
+            return base.BulkInsertAsync(entites);
+        }
+
         public override async Task<Category> DetailsAsync(string entityId)
         {
             await using var connection = new SqlConnection(connectionString);
@@ -16,14 +22,12 @@ namespace NTK24.SQL
             return foundCategory;
         }
 
-        public async Task<List<Category>> GetAllAsync()
+        public override async Task<List<Category>> GetAsync()
         {
             await using var connection = new SqlConnection(connectionString);
             var categories = await connection.QueryAsync<Category>(
                 "SELECT C.CategoryId, C.Name FROM Categories C");
             return categories.ToList();
         }
-
-        public override async Task<List<Category>> GetAsync() => await GetAllAsync();
     }
 }
