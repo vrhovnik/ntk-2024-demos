@@ -8,7 +8,6 @@ using NTK24.Init.Services;
 using NTK24.Interfaces;
 using NTK24.Shared;
 using NTK24.SQL;
-using NTK24.Web.Base;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHealthChecks();
@@ -32,7 +31,6 @@ builder.Services.AddScoped<ILinkGroupRepository, LinkGroupRepository>(_ =>
 builder.Services.AddScoped<ILinkRepository, LinkRepository>(_ => new LinkRepository(sqlConnectionString));
 builder.Services.AddScoped<IDatabaseGenerator, SqlDatabaseGenerator>(_ =>
     new SqlDatabaseGenerator(sqlOptions.ConnectionString));
-builder.Services.AddScoped<IUserDataContext, UserDataContext>();
 
 var azureStorageOptions = builder.Configuration.GetSection(SettingsNameHelper.StorageOptionsSectionName)
     .Get<StorageOptions>()!;

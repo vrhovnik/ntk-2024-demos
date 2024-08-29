@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using NTK24.Interfaces;
@@ -6,9 +7,32 @@ using NTK24.Shared;
 
 namespace NTK24.SQL;
 
-public class SulUserService(string connectionString) : BaseRepository<SulUser>(connectionString), IUserService
+public class SulUserService(string connectionString) : IUserService
 {
-    public override async Task<List<SulUser>> GetAsync()
+    public async Task<bool> BulkInsertAsync(IEnumerable<SulUser> entites)
+    {
+        var usersDt = new DataTable();
+        usersDt.TableName = "Users";
+        usersDt.Columns.Add("UserID", typeof(Guid));
+        usersDt.Columns.Add("FullName", typeof(string));
+        usersDt.Columns.Add("Email", typeof(string));
+        usersDt.Columns.Add("Password", typeof(string));
+        foreach (var user in entites)
+        {
+            var row = usersDt.NewRow();
+            row["UserId"] = user.UserId;
+            row["FullName"] = user.FullName;
+            row["Email"] = user.Email;
+            row["Password"] = user.Password;
+            usersDt.Rows.Add(row);
+        }
+
+        await using var connection = new SqlConnection(connectionString);
+        var isSuccess = await connection.WriteBulkToDatabaseAsync(usersDt);
+        return isSuccess;
+    }
+    
+    public async Task<List<SulUser>> GetAsync()
     {
         await using var connection = new SqlConnection(connectionString);
         var sql = "SELECT U.UserId, U.FullName, U.Email, U.Password FROM Users U";
@@ -16,7 +40,7 @@ public class SulUserService(string connectionString) : BaseRepository<SulUser>(c
         return SulUsers.ToList();
     }
 
-    public override async Task<SulUser> InsertAsync(SulUser entity)
+    public async Task<SulUser> InsertAsync(SulUser entity)
     {
         await using var connection = new SqlConnection(connectionString);
         entity.Password = PasswordHash.CreateHash(entity.Password);
@@ -33,7 +57,7 @@ public class SulUserService(string connectionString) : BaseRepository<SulUser>(c
         return entity;
     }
 
-    public override async Task<SulUser> DetailsAsync(string entityId)
+    public async Task<SulUser> DetailsAsync(string entityId)
     {
         await using var connection = new SqlConnection(connectionString);
         var query =

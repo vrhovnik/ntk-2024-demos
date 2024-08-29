@@ -4,6 +4,7 @@ namespace NTK24.Interfaces;
 
 public interface IUserService
 {
+    Task<List<SulUser>> GetAsync();
     Task<SulUser?> LoginAsync(string username, string password);
     Task<SulUser> FindAsync(string email);
     Task<SulUser> InsertAsync(SulUser newUser);

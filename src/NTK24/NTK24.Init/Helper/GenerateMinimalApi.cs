@@ -33,10 +33,12 @@ public static class GenerateMinimalApi
         var isDatabaseCreated = await databaseGenerator.IsCreatedAsync(databaseName);
         if (!isDatabaseCreated)
         {
-            logger.LogInformation("Database not created, generating database {DatabaseName} from connecting string {ConnectionString}",
+            logger.LogInformation(
+                "Database not created, generating database {DatabaseName} from connecting string {ConnectionString}",
                 databaseName, initOptions.Value.ConnectionString);
             await GenerateDatabaseAsync(apiKey, authOptions, initOptions, databaseGenerator, logger);
         }
+
         logger.LogInformation("Downloading script from {ScriptUrl}", initOptions.Value.TableScriptName);
         var script = await scriptDownloader.GetScriptAsync(initOptions.Value.TableScriptName);
         logger.LogInformation("Script downloaded successfully: {Script}", script);
@@ -69,7 +71,8 @@ public static class GenerateMinimalApi
         logger.LogInformation(
             "Database not created, start generating database {DatabaseName} from connecting string {ConnectionString}",
             databaseName, initOptions.Value.ConnectionString);
-        logger.LogInformation("Database already created, start generating tables for database {DatabaseName}", databaseName);
+        logger.LogInformation("Database already created, start generating tables for database {DatabaseName}",
+            databaseName);
         await databaseGenerator.GenerateAsync(databaseName);
         logger.LogInformation("Database generated successfully at {DateLoaded}", DateTime.Now);
         return Results.Ok($"Generating database {databaseName} was successfully");
@@ -128,12 +131,14 @@ public static class GenerateMinimalApi
         IOptions<InitOptions> initOptions,
         ILinkGroupRepository linkGroupRepository,
         ICategoryRepository categoryRepository,
+        IUserService userService,
         ILogger logger)
     {
         if (!IsApiKeyValid(apiKey, authOptions, logger)) return Results.BadRequest("Invalid API Key");
 
         var dataGenerator = new DataGenerator(initOptions, logger);
-        await dataGenerator.GenerateLinkGroupsAsync(linkGroupRepository, categoryRepository);
+        logger.LogInformation("Generating link groups");
+        await dataGenerator.GenerateLinkGroupsAsync(linkGroupRepository, categoryRepository, userService);
         logger.LogInformation("Link groups generated successfully at {DateLoaded}", DateTime.Now);
         return Results.Ok("Link groups generated successfully");
     }

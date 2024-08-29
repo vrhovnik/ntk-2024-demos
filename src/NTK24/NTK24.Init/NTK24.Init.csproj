@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,8 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NTK24.Shared\NTK24.Shared.csproj" />
-      <ProjectReference Include="..\NTK24.Web\NTK24.Web.csproj" />
+        <ProjectReference Include="..\NTK24.Interfaces\NTK24.Interfaces.csproj" />
+        <ProjectReference Include="..\NTK24.Shared\NTK24.Shared.csproj" />
+        <ProjectReference Include="..\NTK24.SQL\NTK24.SQL.csproj" />
     </ItemGroup>
 
     <ItemGroup>

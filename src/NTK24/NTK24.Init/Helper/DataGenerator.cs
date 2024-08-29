@@ -17,7 +17,7 @@ public class DataGenerator(IOptions<InitOptions> initOptions, ILogger logger)
         logger.LogInformation("Done generating categories, going to generate users");
         await GenerateUsersAsync(userService);
         logger.LogInformation("Done generating users, going to generate link groups");
-        await GenerateLinkGroupsAsync(linkGroupRepository, categoryRepository);
+        await GenerateLinkGroupsAsync(linkGroupRepository, categoryRepository, userService);
         logger.LogInformation("Done generating link groups, going to generate links and add them to link groups");
         await GenerateLinksAsync(linkRepository, linkGroupRepository);
     }
@@ -52,20 +52,25 @@ public class DataGenerator(IOptions<InitOptions> initOptions, ILogger logger)
             .RuleFor(link => link.LinkId, (f, _) => f.Random.Guid())
             .RuleFor(link => link.Name, (f, _) => f.Commerce.ProductName())
             .RuleFor(link => link.Url, (f, _) => f.Internet.Url())
-            .RuleFor(link => link.Group, (f, _) => f.PickRandom<LinkGroup>(linkGroups))
+            .RuleFor(link => link.Group, (f, _) => f.PickRandom(linkGroups))
             .GenerateLazy(initOptions.Value.RecordCount);
 
         await linkRepository.BulkInsertAsync(links);
     }
 
     public async Task GenerateLinkGroupsAsync(ILinkGroupRepository linkGroupRepository,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository, IUserService userService)
     {
         var categories = await categoryRepository.GetAsync();
+        var users = await userService.GetAsync();
         var linkGroups = new Faker<LinkGroup>()
             .RuleFor(linkGroup => linkGroup.LinkGroupId, (f, _) => f.Random.Guid())
             .RuleFor(linkGroup => linkGroup.Name, (f, _) => f.Commerce.ProductAdjective())
-            .RuleFor(linkGroup => linkGroup.Category, (f, _) => f.PickRandom<Category>(categories))
+            .RuleFor(linkGroup => linkGroup.Description, (f, _) => f.Commerce.ProductDescription())
+            .RuleFor(linkGroup => linkGroup.ShortName, (f, _) => f.Commerce.ProductMaterial())
+            .RuleFor(linkGroup => linkGroup.User, (f, _) => f.PickRandom(users))
+            .RuleFor(linkGroup => linkGroup.Category, (f, _) => f.PickRandom(categories))
+            .RuleFor(linkGroup => linkGroup.CreatedAt, (f, _) => f.Date.Past())
             .GenerateLazy(initOptions.Value.RecordCount);
 
         await linkGroupRepository.BulkInsertAsync(linkGroups);

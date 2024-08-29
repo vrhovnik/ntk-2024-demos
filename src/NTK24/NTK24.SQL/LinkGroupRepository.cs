@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using NTK24.Interfaces;
@@ -10,6 +11,37 @@ namespace NTK24.SQL;
 public class LinkGroupRepository(string connectionString)
     : BaseRepository<LinkGroup>(connectionString), ILinkGroupRepository
 {
+    public override async Task<bool> BulkInsertAsync(IEnumerable<LinkGroup> entites)
+    {
+        var dtGroups = new DataTable();
+        dtGroups.TableName = "LinkGroups";
+        dtGroups.Columns.Add("LinkGroupId", typeof(Guid));
+        dtGroups.Columns.Add("Name", typeof(string));
+        dtGroups.Columns.Add("Description", typeof(string));
+        dtGroups.Columns.Add("ShortName", typeof(string));
+        dtGroups.Columns.Add("UserId", typeof(Guid));
+        dtGroups.Columns.Add("Clicked", typeof(int));
+        dtGroups.Columns.Add("CategoryId", typeof(Guid));
+        dtGroups.Columns.Add("CreatedAt", typeof(DateTime));
+        foreach (var linkGroup in entites)
+        {
+            var row = dtGroups.NewRow();
+            row["LinkGroupId"] = linkGroup.LinkGroupId;
+            row["Name"] = linkGroup.Name;
+            row["Description"] = linkGroup.Description;
+            row["ShortName"] = linkGroup.ShortName;
+            row["UserId"] = linkGroup.User.UserId;
+            row["Clicked"] = linkGroup.Clicked;
+            row["CategoryId"] = linkGroup.Category.CategoryId;
+            row["CreatedAt"] = linkGroup.CreatedAt;
+            dtGroups.Rows.Add(row);
+        }
+
+        await using var connection = new SqlConnection(connectionString);
+        var isSuccess = await connection.WriteBulkToDatabaseAsync(dtGroups);
+        return isSuccess;
+    }
+
     public override async Task<LinkGroup> InsertAsync(LinkGroup entity)
     {
         await using var connection = new SqlConnection(connectionString);

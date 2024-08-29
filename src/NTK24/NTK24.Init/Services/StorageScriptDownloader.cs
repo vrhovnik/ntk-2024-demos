@@ -11,8 +11,9 @@ public class StorageScriptDownloader(string scriptContainerName, string connecti
         var blobServiceClient = new BlobServiceClient(connectionString);
         var containerClient = blobServiceClient.GetBlobContainerClient(scriptContainerName);
         var blobClient = containerClient.GetBlobClient(name);
-        if (!await blobClient.ExistsAsync())
-            return string.Empty;
+        
+        if (!await blobClient.ExistsAsync()) return string.Empty;
+        
         var downloadedContent = await blobClient.DownloadContentAsync();
         var downloadedProfile = Encoding.UTF8.GetString(downloadedContent.Value.Content);
         return string.IsNullOrEmpty(downloadedProfile) ? string.Empty : downloadedProfile;

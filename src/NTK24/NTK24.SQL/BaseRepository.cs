@@ -1,4 +1,6 @@
-﻿using NTK24.Interfaces;
+﻿using System.Diagnostics;
+using Microsoft.Data.SqlClient;
+using NTK24.Interfaces;
 using NTK24.Shared;
 
 namespace NTK24.SQL;
@@ -17,5 +19,20 @@ public abstract class BaseRepository<TEntity>(string connectionString) : IDataRe
     public virtual Task<bool> UpdateAsync(TEntity entity) => throw new NotImplementedException();
     public virtual Task<TEntity> InsertAsync(TEntity entity) => throw new NotImplementedException();
     public virtual Task<TEntity> DetailsAsync(string entityId) => throw new NotImplementedException();
-    public virtual Task<bool> BulkInsertAsync(IEnumerable<TEntity> entites)=> throw new NotImplementedException();
+    public virtual async Task<bool> BulkInsertAsync(IEnumerable<TEntity> entites)
+    {
+        try
+        {
+            var dt = entites.ToList().ToDataTable();
+            await using var connection = new SqlConnection(connectionString);
+            connection.Open();
+            await connection.WriteBulkToDatabaseAsync(dt);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+            return false;
+        }
+        return true;
+    }
 }
