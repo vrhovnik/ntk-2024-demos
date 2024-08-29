@@ -70,7 +70,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors();
-app.MapRazorPages();
 app.MapControllers();
 app.UseExceptionHandler(options =>
 {

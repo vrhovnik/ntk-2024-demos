@@ -10,3 +10,9 @@ Accept: application/json
 GET {{api-url}}/lg/get-all
 Accept: application/json
 X-Api-Key: {{api-key}}
+
+### get links from specific group
+@linkGroupId = ""
+GET {{api-url}}/lg/get-links?linkGroupId={{linkGroupId}}}
+Accept: application/json
+X-Api-Key: {{api-key}}

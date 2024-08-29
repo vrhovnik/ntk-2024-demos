@@ -9,9 +9,7 @@ using NTK24.Shared;
 
 namespace NTK24.Api.Controllers;
 
-[ApiController,
- Route(ConstantRouteHelper.LinkGroupBaseRoute),
- Produces(MediaTypeNames.Application.Json)]
+[ApiController, Route(ConstantRouteHelper.LinkGroupBaseRoute), Produces(MediaTypeNames.Application.Json)]
 public class LinkGroupController(
     ILogger<LinkGroupController> logger,
     IOptions<AuthOptions> authOptions,
@@ -33,7 +31,7 @@ public class LinkGroupController(
     [AllowAnonymous]
     public async Task<IActionResult> GetAllLinkGroupsAsync()
     {
-        logger.LogInformation("Called getting live group at {DateCalled}", DateTime.UtcNow);
+        logger.LogInformation("Called getting links group at {DateCalled}", DateTime.UtcNow);
         var linkGroups = await linkGroupRepository.GetAsync();
         logger.LogInformation("Found {LinkGroupCount} link groups", linkGroups.Count);
 
@@ -49,6 +47,23 @@ public class LinkGroupController(
         }
 
         return Ok(list);
+    }
+
+    [HttpGet]
+    [Route(ConstantRouteHelper.GetLinkGroupsRoute + "/{linkGroupId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Produces(typeof(IEnumerable<LinkViewModel>))]
+    public async Task<IActionResult> GetLinksFromLinkGroupAsync(string linkGroupId)
+    {
+        logger.LogInformation("Called getting links from links group at {DateCalled}", DateTime.UtcNow);
+        var foundSelectLinkGroup = await linkGroupRepository.DetailsAsync(linkGroupId);
+        logger.LogInformation("Found {LinksCount} links in link group {Name}", foundSelectLinkGroup.Links,
+            foundSelectLinkGroup.Name);
+        var links = foundSelectLinkGroup.Links.Select(link => new LinkViewModel
+        {
+            Name = link.Name, Url = link.Url
+        });
+        return Ok(links);
     }
 
     [HttpGet]
