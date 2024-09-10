@@ -2,12 +2,15 @@
 GET {{init-url}}/health
 
 ### generate db
-GET {{init-url}}/generate/db
+POST {{init-url}}/init/db
 X-Api-Key: {{api-key}}
 
 ### generate tables
-GET {{init-url}}/generate/tables
+POST {{init-url}}/init/tables
 X-Api-Key: {{api-key}}
+
+### get check if app is working and sql connection is established
+GET {{init-url}}/generate/check
 
 ### generate categories
 POST {{init-url}}/generate/categories

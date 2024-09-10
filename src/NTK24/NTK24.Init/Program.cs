@@ -1,8 +1,10 @@
 using System.Net;
+using System.Text.Json.Serialization;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using NTK24.Init.Helper;
+using Microsoft.OpenApi.Models;
+using NTK24.Init.Authentication;
 using NTK24.Init.Options;
 using NTK24.Init.Services;
 using NTK24.Interfaces;
@@ -12,7 +14,34 @@ using NTK24.SQL;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(conf =>
+{
+    conf.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "Api key to access the NTK api's",
+        Type = SecuritySchemeType.ApiKey,
+        Name = AuthOptions.ApiKeyHeaderName,
+        In = ParameterLocation.Header,
+        Scheme = "ApiKeyScheme"
+    });
+    var scheme = new OpenApiSecurityScheme
+    {
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "ApiKey"
+        },
+        In = ParameterLocation.Header
+    };
+    var requirement = new OpenApiSecurityRequirement
+    {
+        { scheme, new List<string>() }
+    };
+    conf.AddSecurityRequirement(requirement);
+});
+builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 builder.Services.AddOptions<InitOptions>()
     .Bind(builder.Configuration.GetSection(SettingsNameHelper.DataOptionsSectionName));
@@ -37,6 +66,8 @@ var azureStorageOptions = builder.Configuration.GetSection(SettingsNameHelper.St
 builder.Services.AddScoped<IScriptDownloader, StorageScriptDownloader>(_ =>
     new StorageScriptDownloader(azureStorageOptions.TableScriptContainer, azureStorageOptions.ConnectionString));
 
+builder.Services.AddScoped<ApiKeyAuthFilter>();
+
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
@@ -44,9 +75,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGroup("/generate").MapGenerateApi().WithTags("generate");
-app.MapGroup("/init").MapInitApi().WithTags("init");
-
+//minimal api implementation
+// app.MapGroup("/generate").MapGenerateApi().WithTags("generate");
+// app.MapGroup("/init").MapInitApi().WithTags("init");
+app.UseRouting();
+app.MapControllers();
 app.UseExceptionHandler(options =>
 {
     options.Run(async context =>

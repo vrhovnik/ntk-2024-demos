@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using NTK24.Interfaces;
 using NTK24.Shared;
@@ -12,13 +13,16 @@ public abstract class BaseRepository<TEntity>(string connectionString) : IDataRe
         throw new NotImplementedException();
 
     public virtual async Task<List<TEntity>> SearchAsync(string query = "") => await SearchAsync(1, 100, query);
-    public virtual Task<PaginatedList<TEntity>> GetAsync(int page, int pageSize) => 
+
+    public virtual Task<PaginatedList<TEntity>> GetAsync(int page, int pageSize) =>
         throw new NotImplementedException();
+
     public virtual Task<List<TEntity>> GetAsync() => throw new NotImplementedException();
     public virtual Task<bool> DeleteAsync(string entityId) => throw new NotImplementedException();
     public virtual Task<bool> UpdateAsync(TEntity entity) => throw new NotImplementedException();
     public virtual Task<TEntity> InsertAsync(TEntity entity) => throw new NotImplementedException();
     public virtual Task<TEntity> DetailsAsync(string entityId) => throw new NotImplementedException();
+
     public virtual async Task<bool> BulkInsertAsync(IEnumerable<TEntity> entites)
     {
         try
@@ -33,6 +37,30 @@ public abstract class BaseRepository<TEntity>(string connectionString) : IDataRe
             Debug.WriteLine(e.Message);
             return false;
         }
+
         return true;
+    }
+
+    public async Task<bool> IsConnectionToDatabaseValidAsync()
+    {
+        await using var connection = new SqlConnection(connectionString);
+        var checkResult = false;
+        try
+        {
+            await connection.OpenAsync();
+            checkResult = true;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return checkResult;
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+                await connection.CloseAsync();
+        }
+
+        return checkResult;
     }
 }

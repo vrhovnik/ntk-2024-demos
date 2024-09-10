@@ -2,6 +2,7 @@
 <project version="4">
   <component name="UserContentModel">
     <attachedFolders>
+      <Path>../../bicep</Path>
       <Path>../../containers</Path>
       <Path>../../scripts</Path>
       <Path>../../yaml</Path>

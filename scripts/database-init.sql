@@ -33,10 +33,6 @@ alter table LinkGroups
         foreign key (CategoryId) references Categories
     go
 
-alter table LinkGroups
-    add constraint DF__LinkGroup__Click__14270015 default 0 for Clicked
-go
-
 create table Links
 (
     LinkId      uniqueidentifier not null rowguidcol,

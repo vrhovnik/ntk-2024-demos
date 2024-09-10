@@ -80,12 +80,30 @@ public static class GenerateMinimalApi
 
     public static RouteGroupBuilder MapGenerateApi(this RouteGroupBuilder group)
     {
+        group.MapGet("check", CheckApiHealth);
         group.MapPost("all", AddAllApiAsync);
         group.MapPost("categories", AddCategoriesApiAsync);
         group.MapPost("users", AddUsersApiAsync);
         group.MapPost("link-groups", AddLinkGroupsApiAsync);
         group.MapPost("links", AddLinksApiAsync);
         return group;
+    }
+
+    private static async Task<IResult> CheckApiHealth(IOptions<InitOptions> initOptions,
+        ILogger logger,
+        [FromServices] ICategoryRepository categoryRepository)
+    {
+        var dataGenerator = new DataGenerator(initOptions, logger);
+        var connIsValid = await dataGenerator.CheckDatabaseConnectionAsync(categoryRepository);
+
+        if (connIsValid)
+        {
+            logger.LogInformation("Database connection is valid");
+            return Results.Ok("API is healthy");
+        }
+
+        logger.LogError("Database connection is invalid");
+        return Results.BadRequest("Database connection is invalid");
     }
 
     private static async Task<IResult> AddAllApiAsync([FromHeader(Name = AuthOptions.ApiKeyHeaderName)] string apiKey,
@@ -97,7 +115,7 @@ public static class GenerateMinimalApi
         ILinkRepository linkRepository,
         ILogger logger)
     {
-        if (!IsApiKeyValid(apiKey, authOptions, logger)) return Results.BadRequest("Invalid API Key");
+        if (!IsApiKeyValid(apiKey, authOptions, logger)) return TypedResults.BadRequest("Invalid API Key");
 
         var dataGenerator = new DataGenerator(initOptions, logger);
         await dataGenerator.GenerateAllAsync(categoryRepository,

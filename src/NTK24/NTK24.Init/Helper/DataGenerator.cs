@@ -9,6 +9,10 @@ namespace NTK24.Init.Helper;
 
 public class DataGenerator(IOptions<InitOptions> initOptions, ILogger logger)
 {
+    public async Task<bool> CheckDatabaseConnectionAsync<T>(IDataRepository<T> dataRepository) 
+        where T : class =>
+        await dataRepository.IsConnectionToDatabaseValidAsync();
+
     public async Task GenerateAllAsync(ICategoryRepository categoryRepository,
         IUserService userService, ILinkGroupRepository linkGroupRepository, ILinkRepository linkRepository)
     {

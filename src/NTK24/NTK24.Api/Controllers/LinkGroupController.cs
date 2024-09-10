@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using NTK24.Api.Authentication;
 using NTK24.Api.ViewModels;
 using NTK24.Interfaces;
 using NTK24.Models;
@@ -28,7 +29,7 @@ public class LinkGroupController(
     [HttpGet]
     [Route(ConstantRouteHelper.GetLinkGroupsRoute)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [AllowAnonymous]
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     public async Task<IActionResult> GetAllLinkGroupsAsync()
     {
         logger.LogInformation("Called getting links group at {DateCalled}", DateTime.UtcNow);
@@ -50,9 +51,34 @@ public class LinkGroupController(
     }
 
     [HttpGet]
+    [Route(ConstantRouteHelper.GetPublicLinkGroupsRoute)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllPublicLinkGroupsAsync()
+    {
+        logger.LogInformation("Called getting links group at {DateCalled}", DateTime.UtcNow);
+        var linkGroups = await linkGroupRepository.GetAsync();
+        logger.LogInformation("Found {LinkGroupCount} link groups", linkGroups.Count);
+
+        //if category is public, add them
+        var list = (from linkGroup in linkGroups
+                where linkGroup.Category.Name.ToUpper() == "PUBLIC"
+                select new SimpleLinkGroupViewModel
+                {
+                    Name = linkGroup.Name,
+                    CreatedAt = linkGroup.CreatedAt,
+                    Links = linkGroup.Links
+                })
+            .ToList();
+
+        return Ok(list);
+    }
+
+    [HttpGet]
     [Route(ConstantRouteHelper.GetLinkGroupsRoute + "/{linkGroupId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [Produces(typeof(IEnumerable<LinkViewModel>))]
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     public async Task<IActionResult> GetLinksFromLinkGroupAsync(string linkGroupId)
     {
         logger.LogInformation("Called getting links from links group at {DateCalled}", DateTime.UtcNow);
@@ -97,7 +123,7 @@ public class LinkGroupController(
     [Route(ConstantRouteHelper.AddLinksRoute)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [AllowAnonymous]
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     public async Task<IActionResult> AddLinksToLinkGroupAsync([FromBody] LinkGroupViewModel linkGroupView)
     {
         logger.LogInformation("Adding links to Link Group {LinkGroupId} at {DateCalled}", linkGroupView.LinkGroupId,
