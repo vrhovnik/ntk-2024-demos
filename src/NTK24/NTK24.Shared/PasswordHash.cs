@@ -44,7 +44,7 @@ public class PasswordHash
     /// <returns>The hash of the password.</returns>
     public static string CreateHash(string password)
     {
-        var randomNumberGenerator = RandomNumberGenerator.Create(password);
+        var randomNumberGenerator = RandomNumberGenerator.Create();
         var salt = new byte[SALT_BYTE_SIZE];
         randomNumberGenerator?.GetBytes(salt);
 
@@ -62,7 +62,7 @@ public class PasswordHash
     public static bool ValidateHash(string password, string correctHash)
     {
         // Extract the parameters from the hash
-        char[] delimiter = { ':' };
+        char[] delimiter = [':'];
         var split = correctHash.Split(delimiter);
         var iterations = int.Parse(split[ITERATION_INDEX]);
         var salt = Convert.FromBase64String(split[SALT_INDEX]);
@@ -98,7 +98,7 @@ public class PasswordHash
     /// <returns>A hash of the password.</returns>
     private static byte[] PBKDF2(string password, byte[] salt, int iterations, int outputBytes)
     {
-        var pbkdf2 = new Rfc2898DeriveBytes(password, salt) {IterationCount = iterations};
+        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
         return pbkdf2.GetBytes(outputBytes);
     }
 }

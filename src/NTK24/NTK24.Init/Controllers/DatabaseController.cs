@@ -14,7 +14,6 @@ namespace NTK24.Init.Controllers;
 public class DatabaseController(
     ILogger<DatabaseController> logger,
     IOptions<InitOptions> initOptions,
-    IOptions<AuthOptions> authOptions,
     ICategoryRepository categoryRepository,
     IDatabaseGenerator databaseGenerator,
     IScriptDownloader scriptDownloader) : Controller

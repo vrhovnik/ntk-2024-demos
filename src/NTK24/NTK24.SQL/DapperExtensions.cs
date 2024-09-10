@@ -44,7 +44,7 @@ public static class DapperExtensions
     public static IEnumerable<TFirst> Map<TFirst, TSecond, TKey>(this SqlMapper.GridReader reader,
         Func<TFirst, TKey> firstKey,
         Func<TSecond, TKey> secondKey,
-        Action<TFirst, IEnumerable<TSecond>> addChildren)
+        Action<TFirst, IEnumerable<TSecond>> addChildren) where TKey : notnull
     {
         var first = reader.Read<TFirst>().ToList();
 
