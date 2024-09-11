@@ -1,6 +1,9 @@
 ﻿@page
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+@using NTK24.Shared
+@using NTK24.Web.Options
 @model Pages.Groups.IndexPageModel
+@inject Microsoft.Extensions.Options.IOptions<AppOptions> CurrentAppOptions
 
 @{
     ViewData["Title"] = "List Link Groups";
@@ -52,7 +55,11 @@
                               :headers="headers">
                     <template v-slot:item="{ item }">
                         <tr>
-                            <td>{{ item.name }}</td>
+                            <td>
+                                <a href="{{ generalRedirectUrl }}/{{ item.id }}">
+                                    {{ item.name }}
+                                </a>
+                            </td>
                             <td class="text-center">{{ item.createdAt }}</td>
                             <td>{{ item.shortName }}</td>
                             <td class="text-center">{{ item.clicked }}</td>
@@ -81,6 +88,7 @@
         const { createVuetify } = Vuetify;
         const vuetify = createVuetify();
         const query = ref('');
+        const generalRedirectUrl = '@($"{CurrentAppOptions.Value.ApiUrl}/{ConstantRouteHelper.RedirectRoute}/")';
         let isLoading = ref(false);
         let searchResults = ref([]);
         const headers= [
@@ -94,6 +102,7 @@
             setup() {
                 return {
                     query,
+                    generalRedirectUrl,
                     callSearchAPI,
                     goToFunction,
                     searchResults,

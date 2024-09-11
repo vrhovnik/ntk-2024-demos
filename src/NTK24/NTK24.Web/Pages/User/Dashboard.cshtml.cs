@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NTK24.Interfaces;
 using NTK24.Models;
 using NTK24.Web.Base;
+using NTK24.Web.Services;
 
 namespace NTK24.Web.Pages.User;
 
@@ -10,6 +11,7 @@ namespace NTK24.Web.Pages.User;
 public class DashboardPageModel(
     ILogger<DashboardPageModel> logger,
     IUserDataContext userDataContext,
+    GenerateLinkGroupService generateLinkGroupService,
     ILinkGroupRepository linkGroupRepository) : BasePageModel
 {
     public async Task OnGetAsync()
@@ -23,5 +25,17 @@ public class DashboardPageModel(
             DateTime.Now, MyLinkGroups.Count);
     }
 
-    [BindProperty] public List<LinkGroup> MyLinkGroups { get; set; }
+    public async Task<RedirectToPageResult> OnPostAsync()
+    {
+        logger.LogInformation("Creating random post data at {DateCreated}", DateTime.Now);
+
+        var isSuccess = await generateLinkGroupService.GenerateRandomLinkGroupAsync();
+        logger.LogInformation(isSuccess
+            ? "Generated random post data, redirecting to dashboard to reload"
+            : "Error while generating random post data, redirecting to dashboard to reload. Check logs.");
+
+        return RedirectToPage();
+    }
+
+    [BindProperty] public List<LinkGroup> MyLinkGroups { get; set; } = new();
 }

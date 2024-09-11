@@ -3,6 +3,7 @@
   <component name="UserContentModel">
     <attachedFolders>
       <Path>../../bicep</Path>
+      <Path>../../compose</Path>
       <Path>../../containers</Path>
       <Path>../../scripts</Path>
       <Path>../../yaml</Path>

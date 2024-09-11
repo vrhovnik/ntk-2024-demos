@@ -9,6 +9,9 @@ using NTK24.Shared;
 using NTK24.SQL;
 using NTK24.Web.Base;
 using NTK24.Web.Options;
+using NTK24.Web.Services;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,12 +33,14 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(_ => new Cat
 builder.Services.AddScoped<ILinkGroupRepository, LinkGroupRepository>(_ => new LinkGroupRepository(sqlConnectionString));
 builder.Services.AddScoped<ILinkRepository, LinkRepository>(_ => new LinkRepository(sqlConnectionString));
 builder.Services.AddScoped<IUserDataContext, UserDataContext>();
+builder.Services.AddHttpClient<GenerateLinkGroupService>()
+    .AddTransientHttpErrorPolicy(policyBuilder =>
+        policyBuilder.WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromSeconds(1), 5)));;
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options => options.LoginPath = new PathString("/User/Login"));
 builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
     options.Conventions.AddPageRoute("/Info/Index", ""));
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment()) app.UseExceptionHandler("/Error");
