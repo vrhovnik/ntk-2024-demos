@@ -5,6 +5,7 @@
 @using NTK24.Web.Options
 @model Pages.Groups.LinksPageModel
 @inject IOptions<AppOptions> AppOptions
+@inject IOptions<AuthOptions> WebAuthOptions
 @{
     var name = Model.CurrentLinkGroup.Name;
     ViewData["Title"] = "Links for " + name;
@@ -116,10 +117,10 @@
             let table = document.getElementById("tbLinks");            
             if (table === null || table.length === 0) {
                alert("No links to save!");
-                return;
+               return;
             }     
             const searchApiBase = '@ConstantRouteHelper.LinkGroupBaseRoute' + '/@ConstantRouteHelper.AddLinksRoute';
-            let url = '@AppOptions.Value.ApiUrl' + searchApiBase;      
+            let url = '@AppOptions.Value.ApiUrl' + '/' + searchApiBase;      
             console.log("Url is: " + url);
             let list = [];
             for (let i = 1; i < table.rows.length; i++) {
@@ -144,12 +145,15 @@
                Links : list 
             };
             console.log(data);
+            const apiHeaders ={
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                '@AuthOptions.ApiKeyHeaderName': '@WebAuthOptions.Value.ApiKey'
+            };
+            console.log(apiHeaders);
             fetch(url, {
                 method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
+                headers: apiHeaders,
                 body: JSON.stringify(data)
               })
               .then(result => {

@@ -93,7 +93,7 @@ public class LinkGroupRepository(string connectionString)
         var sql = "SELECT G.LinkGroupId, G.Name, G.Description, G.ShortName, " +
                   "G.UserId,G.Clicked,G.CategoryId,G.CreatedAt, C.CategoryId, C.Name, L.LinkId, L.Name, L.Url " +
                   "FROM LinkGroups G " +
-                  "JOIN Categories C ON G.CategoryId = C.CategoryId "+
+                  "JOIN Categories C ON G.CategoryId = C.CategoryId " +
                   "LEFT JOIN Links L on L.LinkGroupId=G.LinkGroupId ";
 
         if (!string.IsNullOrEmpty(query))
@@ -221,6 +221,13 @@ public class LinkGroupRepository(string connectionString)
     {
         try
         {
+            //delete all the links in the group
+            await using var connection = new SqlConnection(connectionString);
+            var sql = "DELETE FROM Links WHERE LinkGroupId=@currentId";
+            var resultAffected = await connection.ExecuteAsync(sql, new
+            {
+                currentId = linkGroupId
+            });
             await SaveLinksToDatabaseAsync(linkGroupId, links.ToArray());
         }
         catch (Exception e)
@@ -258,7 +265,7 @@ public class LinkGroupRepository(string connectionString)
         var sql = "SELECT G.LinkGroupId, G.Name, G.Description, G.ShortName, " +
                   "G.UserId,G.Clicked,G.CategoryId,G.CreatedAt, C.CategoryId, C.Name, L.LinkId, L.Name, L.Url " +
                   "FROM LinkGroups G " +
-                  "JOIN Categories C ON G.CategoryId = C.CategoryId "+
+                  "JOIN Categories C ON G.CategoryId = C.CategoryId " +
                   "LEFT JOIN Links L on L.LinkGroupId=G.LinkGroupId ";
 
         if (!string.IsNullOrEmpty(query))

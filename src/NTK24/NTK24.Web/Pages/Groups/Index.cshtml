@@ -56,7 +56,7 @@
                     <template v-slot:item="{ item }">
                         <tr>
                             <td>
-                                <a href="{{ generalRedirectUrl }}/{{ item.id }}">
+                                <a v-on:click="goToFunction('Details',item.id)">
                                     {{ item.name }}
                                 </a>
                             </td>
@@ -120,10 +120,11 @@
             console.log(url);
             window.location.replace(url + '?linkGroupId=' + currentId);
         }
-        function callSearchAPI() {
-            console.log('Searching with ' + query);                        
+        function callSearchAPI() {                        
             isLoading.value = true;
-            let searchUrl = '@Url.Page("Index", "Filter")' + "&query=" + query;
+            let searchEntry = query.value;
+            console.log('Searching with ' + searchEntry);
+            let searchUrl = '@Url.Page("Index", "Filter")' + "&query=" + searchEntry;
             console.log("Search url is " + searchUrl);
             fetch(searchUrl, {
                 method: 'GET',

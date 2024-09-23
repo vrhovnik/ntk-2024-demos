@@ -55,15 +55,23 @@ in [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/overview?v
 
 ## Demo applications
 
-TBD
+*NTK24.Web* is a simple web application which enables users to save their favorite links and then be able to access them.
 
-## Demo APIs
+![NTK24 web app](https://webeudatastorage.blob.core.windows.net/web/ntk24-web.png)
 
-TBD
+*NTK24.Api* is a simple API that will be deployed to the Azure platform using different container options.
+
+![NTK24 api](https://webeudatastorage.blob.core.windows.net/web/ntk24-api.png)
+
+*NTK24.Init* is a simple API that will be deployed to the Azure platform using different container options.
+
+![NTK24 init](https://webeudatastorage.blob.core.windows.net/web/ntk24-init.png)
 
 ## Demo databases
 
-TBD
+Database is simple and can be initialized with a script [here](scripts/database-init.sql).
+
+![NTK database](https://webeudatastorage.blob.core.windows.net/web/ntk24-db.png)
 
 ## Scripts
 
