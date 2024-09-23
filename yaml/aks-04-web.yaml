@@ -1,0 +1,69 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sul-web
+  namespace: ntk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: web
+          image: bovrhovn.azurecr.io/sul/web:latest
+          env:
+            - name: DataOptions__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: database-configs
+                  key: DatabaseConnectionString
+            - name: AuthOptions__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: database-configs
+                  key: ApiKey
+            - name: AppOptions__ApiUrl
+              value: "http://ntk.svc.cluster.local/api/"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: internet
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-kvname"
+            nodePublishSecretRef:
+              name: secrets-store-creds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sulweb-service
+  namespace: ntk
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: web

@@ -1,0 +1,12 @@
+﻿#### FLOW for AKS ####
+
+kubectl cluster-info
+kubectl get nodes -o wide
+kubectl get pods --all-namespaces
+
+kubectl scale --replicas=3 deployment/sul-web -n ntk
+
+## cost analyzer
+kubectl port-forward --namespace kubecost deployment/kubecost-cost-analyzer 9090
+
+## navigate to http://localhost:9090 in a web browser and show cost estimation.

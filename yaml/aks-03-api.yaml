@@ -1,0 +1,66 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: ntk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: back  
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: sul-back
+          image: bovrhovn.azurecr.io/sul/api:latest
+          env:
+            - name: DataOptions__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: database-configs
+                  key: DatabaseConnectionString
+            - name: AuthOptions__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: database-configs
+                  key: ApiKey            
+          resources:
+            requests:
+              cpu: 200m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: internet
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-kvname"
+            nodePublishSecretRef:
+              name: secrets-store-creds
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: ntk
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: back
